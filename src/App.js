@@ -1,23 +1,48 @@
 import React, { Component } from 'react';
 import './App.css';
 
-class App extends Component {
-  render() {
-    const intro = "Welcome to this page!!";
-    const body = "This is going to turn into an awesome app";
-    const obj = {
-      firstname: "George",
-      lastname: "Kettle",
-      age: 27,
-      height: "1.75m"
-    }
+const list = [
+  {
+    title: "React",
+    url: "https://reactjs.org",
+    author: "Jordan Walke",
+    num_comments: 3,
+    points: 4,
+    objectID: 0,
+  },
+  {
+    title: "Redux",
+    url: "https://redux.js.org",
+    author: "Dan Abramov, Andrew Clark",
+    num_comments: 2,
+    points: 5,
+    objectID: 1,
+  },
+];
 
+class App extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      list,
+    };
+  }
+
+  render() {
     return (
       <div className="App">
-        <h2>{intro}</h2>
-        <br />
-        <h3>{body}</h3>
-        <p>{`Meet ${obj.firstname} ${obj.lastname}. They are ${obj.age} years old and a whooping ${obj.height} tall.`}</p>
+        {this.state.list.map(item => 
+          <div key={item.objectID}> 
+            <span>
+              <a href={item.url}>{item.title}</a>
+            </span>
+            <span>{item.author}</span>
+            <span>{item.num_comments}</span>
+            <span>{item.points}</span>
+          </div>
+        )}
       </div>
     );
   }
