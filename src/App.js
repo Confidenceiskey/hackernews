@@ -9,7 +9,6 @@ const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
 
-
 class App extends Component {
   constructor() {
     super();
@@ -35,19 +34,28 @@ class App extends Component {
     });
   }
 
+  onSearchSubmit = (event) => {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+    event.preventDefault();
+  }
+
   setSearchTopStories = (result) => {
     this.setState({
       result: result
     })
   }
 
-  componentDidMount() {
-    const { searchTerm } = this.state;
-
+  fetchSearchTopStories = (searchTerm) => {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
       .then(response => response.json())
       .then(result => this.setSearchTopStories(result))
       .catch(err => err);
+  }
+
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
   }
 
   render() {
@@ -63,18 +71,55 @@ class App extends Component {
           <Search 
             value={searchTerm}
             onTextChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
           >
           Search
           </Search>
         </div>
-        <Table 
-          list={result.hits}
-          searchTerm={searchTerm}
-          onDismiss={this.onDismiss}
+        { result 
+          ? <Table 
+            list={result.hits}
+            onDismiss={this.onDismiss}
         />
+        : null
+        }
       </div>
     );
   }
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
