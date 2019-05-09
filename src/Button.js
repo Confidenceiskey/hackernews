@@ -1,6 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const Button = ({ onClick, className = '', children }) => {
+const Button = ({ onClick, className, children }) => {
+
+  Button.defaultProps = {
+    className: '',
+  };
+
+  Button.propTypes = {
+    onClick: PropTypes.func.isRequired,
+    className: PropTypes.string,
+    children: PropTypes.node.isRequired,
+  };
 
   return (
     <button
@@ -8,7 +19,7 @@ const Button = ({ onClick, className = '', children }) => {
       className={className}
       type="button"
     >
-    {children}
+      {children}
     </button>
   );
 }
