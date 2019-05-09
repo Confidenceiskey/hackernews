@@ -4,6 +4,7 @@ import './App.css';
 import Button from './Button';
 import Search from './Search';
 import Table from './Table';
+import WithLoading from './WithLoading';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
@@ -24,7 +25,8 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
-      error: null
+      error: null,
+      isLoading: false,
     };
   }
 
@@ -71,11 +73,14 @@ class App extends Component {
     this.setState({
       results: {
         ...results, [searchKey]: { hits: updatedHits, page: page } 
-      }
+      },
+      isLoading: false
     });
   }
 
   fetchSearchTopStories = (searchTerm, page = 0) => {
+    this.setState({ isLoading: true });
+
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(result => this._isMounted && this.setSearchTopStories(result.data))
       .catch(err => this._isMounted && this.setState({ error: err }));
@@ -100,9 +105,10 @@ class App extends Component {
   }
 
   render() {
-    const { results, searchTerm, searchKey, error } = this.state;
+    const { results, searchTerm, searchKey, error, isLoading } = this.state;
     const page = results && results[searchKey] ? results[searchKey].page : 0;
     const list = results && results[searchKey] ? results[searchKey].hits : [];
+    const ButtonWithLoading = WithLoading(Button);
 
     return (
       <div className="page">
@@ -126,9 +132,12 @@ class App extends Component {
           />
         }
         <div className ="interactions">
-          <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+          <ButtonWithLoading
+            isLoading={isLoading}
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+          >
             More
-          </Button>
+          </ButtonWithLoading>
         </div>
       </div>
     );
