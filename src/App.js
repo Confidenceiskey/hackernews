@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import './App.css';
 import Button from './Button';
 import Search from './Search';
@@ -15,21 +16,30 @@ const PARAM_HPP = 'hitsPerPage=';
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
 
 class App extends Component {
+  _isMounted = false;
+
   constructor() {
     super();
     this.state = {
-      result: null,
-      searchTerm: DEFAULT_QUERY
+      results: null,
+      searchKey: '',
+      searchTerm: DEFAULT_QUERY,
+      error: null
     };
   }
 
   onDismiss = (id) => {
-    const newList = this.state.result.hits.filter((item) => {
-      return item.objectID !== id;
-    });
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
+    const isNotId = item => item.objectID !== id;
+    const updatedHits = hits.filter(isNotId);
 
     this.setState({
-      result: { ...this.state.result, hits: newList }
+      results: { 
+        ...results, 
+        [searchKey]: {hits: updatedHits, page: page } 
+      }
     });
   }
 
@@ -41,41 +51,58 @@ class App extends Component {
 
   onSearchSubmit = (event) => {
     const { searchTerm } = this.state;
-    this.fetchSearchTopStories(searchTerm);
+    this.setState({
+      searchKey: searchTerm
+    });
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
     event.preventDefault();
   }
 
   setSearchTopStories = (result) => {
     const { hits, page } = result;
+    const { searchKey, results } = this.state;
 
-    const oldHits = page !== 0 ? this.state.result.hits : [];
+    const oldHits = results && result[searchKey] ? results[searchKey].hits : [];
 
     const updatedHits = [...oldHits, ...hits];
 
     this.setState({
-      result: {hits: updatedHits, page}
+      results: {
+        ...results, [searchKey]: { hits: updatedHits, page: page } 
+      }
     });
   }
 
   fetchSearchTopStories = (searchTerm, page = 0) => {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
-      .then(response => response.json())
-      .then(result => this.setSearchTopStories(result))
-      .catch(err => err);
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+      .then(result => this._isMounted && this.setSearchTopStories(result.data))
+      .catch(err => this._isMounted && this.setState({ error: err }));
+  }
+
+  needsToSearchTopStories = (searchTerm) => {
+    return !this.state.results[searchTerm];
   }
 
   componentDidMount() {
+    this._isMounted = true;
+
     const { searchTerm } = this.state;
+    this.setState({
+      searchKey: searchTerm
+    });
     this.fetchSearchTopStories(searchTerm);
   }
 
-  render() {
-    const { result, searchTerm } = this.state;
-    const page = result ? result.page : 0;
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
-    if (!result) {
-      return null;
-    }
+  render() {
+    const { results, searchTerm, searchKey, error } = this.state;
+    const page = results && results[searchKey] ? results[searchKey].page : 0;
+    const list = results && results[searchKey] ? results[searchKey].hits : [];
 
     return (
       <div className="page">
@@ -88,15 +115,18 @@ class App extends Component {
           Search
           </Search>
         </div>
-        { result 
-          ? <Table 
-            list={result.hits}
+        { error ?
+          <div className="interactions">
+            <p style={{color: "red"}}>Something went wrong!</p>
+          </div>
+          :
+          <Table 
+            list={list}
             onDismiss={this.onDismiss}
-        />
-        : null
+          />
         }
         <div className ="interactions">
-          <Button onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}>
+          <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
             More
           </Button>
         </div>
