@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from './Button';
+import Sort from './Sort';
 
-const Table = ({ list, onDismiss }) => {
+const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
 
   Table.propTypes = {
     list: PropTypes.arrayOf(
@@ -30,8 +31,46 @@ const Table = ({ list, onDismiss }) => {
   }
   
   return (
+
     <div className="table">
-      {list.map(item => 
+      <div className="table-header">
+        <span style={largeColumn}>
+          <Sort
+            sortKey={'TITLE'}
+            onSort={onSort}
+          >
+            Title
+          </Sort>
+        </span>
+        <span style={midColumn}>
+          <Sort 
+            sortKey={'AUTHOR'}
+            onSort={onSort}
+          >
+            Author
+          </Sort>
+        </span>
+        <span style={smallColumn}>
+          <Sort  
+            sortKey={'COMMENTS'}
+            onSort={onSort}
+          >
+            Comments
+          </Sort>
+        </span>
+        <span style={smallColumn}>
+          <Sort
+            sortKey={'POINTS'}
+            onSort={onSort}
+          >
+            Points
+          </Sort>
+        </span>
+        <span style={smallColumn}>
+          Archive
+        </span>
+      </div>
+      {SORTS[sortKey](list).map(item => 
         <div key={item.objectID} className="table-row"> 
           <span style={largeColumn}>
             <a href={item.url}>{item.title}</a>

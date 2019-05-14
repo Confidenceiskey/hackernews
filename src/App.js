@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { sortBy } from 'lodash';
 import './App.css';
 import Button from './Button';
 import Search from './Search';
 import Table from './Table';
 import WithLoading from './WithLoading';
+
+//ended on page 153
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
@@ -15,6 +18,14 @@ const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}&${PARAM_PAGE}`;
+
+const SORTS = {
+  NONE: list => list,
+  TITLE: list => sortBy(list, 'title'),
+  AUTHOR: list => sortBy(list, 'author'),
+  COMMENTS: list => sortBy(list, 'num_comments').reserve(),
+  POINTS: list => sortBy(list, 'points').reverse(),
+};
 
 class App extends Component {
   _isMounted = false;
@@ -27,6 +38,7 @@ class App extends Component {
       searchTerm: DEFAULT_QUERY,
       error: null,
       isLoading: false,
+      sortKey: 'NONE',
     };
   }
 
@@ -43,6 +55,12 @@ class App extends Component {
         [searchKey]: {hits: updatedHits, page: page } 
       }
     });
+  }
+
+  onSort = ({ sortKey }) => {
+    this.setState({
+      sortKey
+    })
   }
 
   onSearchChange = (event) => {
@@ -105,7 +123,7 @@ class App extends Component {
   }
 
   render() {
-    const { results, searchTerm, searchKey, error, isLoading } = this.state;
+    const { results, searchTerm, searchKey, error, isLoading, sortKey } = this.state;
     const page = results && results[searchKey] ? results[searchKey].page : 0;
     const list = results && results[searchKey] ? results[searchKey].hits : [];
     const ButtonWithLoading = WithLoading(Button);
@@ -128,6 +146,9 @@ class App extends Component {
           :
           <Table 
             list={list}
+            SORTS={SORTS}
+            sortKey={sortKey}
+            onSort={this.onSort}
             onDismiss={this.onDismiss}
           />
         }
