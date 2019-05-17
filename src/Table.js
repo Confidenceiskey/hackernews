@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import Button from './Button';
 import Sort from './Sort';
 
-const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
+const Table = ({ list, SORTS, sortKey, isSortReverse, onSort, onDismiss }) => {
+
+  const sortedList = SORTS[sortKey](list);
+  const reverseSortedList = isSortReverse ? sortedList.reverse() : sortedList;
 
   Table.propTypes = {
     list: PropTypes.arrayOf(
@@ -38,6 +41,7 @@ const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
           <Sort
             sortKey={'TITLE'}
             onSort={onSort}
+            activeSortKey={sortKey}
           >
             Title
           </Sort>
@@ -46,6 +50,7 @@ const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
           <Sort 
             sortKey={'AUTHOR'}
             onSort={onSort}
+            activeSortKey={sortKey}
           >
             Author
           </Sort>
@@ -54,6 +59,7 @@ const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
           <Sort  
             sortKey={'COMMENTS'}
             onSort={onSort}
+            activeSortKey={sortKey}
           >
             Comments
           </Sort>
@@ -62,6 +68,7 @@ const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
           <Sort
             sortKey={'POINTS'}
             onSort={onSort}
+            activeSortKey={sortKey}
           >
             Points
           </Sort>
@@ -70,7 +77,7 @@ const Table = ({ list, SORTS, sortKey, onSort, onDismiss }) => {
           Archive
         </span>
       </div>
-      {SORTS[sortKey](list).map(item => 
+      {reverseSortedList.map(item => 
         <div key={item.objectID} className="table-row"> 
           <span style={largeColumn}>
             <a href={item.url}>{item.title}</a>

@@ -23,7 +23,7 @@ const SORTS = {
   NONE: list => list,
   TITLE: list => sortBy(list, 'title'),
   AUTHOR: list => sortBy(list, 'author'),
-  COMMENTS: list => sortBy(list, 'num_comments').reserve(),
+  COMMENTS: list => sortBy(list, 'num_comments').reverse(),
   POINTS: list => sortBy(list, 'points').reverse(),
 };
 
@@ -39,6 +39,7 @@ class App extends Component {
       error: null,
       isLoading: false,
       sortKey: 'NONE',
+      isSortReverse: false,
     };
   }
 
@@ -57,10 +58,12 @@ class App extends Component {
     });
   }
 
-  onSort = ({ sortKey }) => {
+  onSort = (sortKey) => {
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
     this.setState({
-      sortKey
-    })
+      sortKey,
+      isSortReverse
+    });
   }
 
   onSearchChange = (event) => {
@@ -123,7 +126,7 @@ class App extends Component {
   }
 
   render() {
-    const { results, searchTerm, searchKey, error, isLoading, sortKey } = this.state;
+    const { results, searchTerm, searchKey, error, isLoading, sortKey, isSortReverse } = this.state;
     const page = results && results[searchKey] ? results[searchKey].page : 0;
     const list = results && results[searchKey] ? results[searchKey].hits : [];
     const ButtonWithLoading = WithLoading(Button);
@@ -148,6 +151,7 @@ class App extends Component {
             list={list}
             SORTS={SORTS}
             sortKey={sortKey}
+            isSortReverse={isSortReverse}
             onSort={this.onSort}
             onDismiss={this.onDismiss}
           />
