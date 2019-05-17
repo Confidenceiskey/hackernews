@@ -7,8 +7,6 @@ import Search from './Search';
 import Table from './Table';
 import WithLoading from './WithLoading';
 
-//ended on page 153
-
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
 
