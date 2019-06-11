@@ -2,6 +2,7 @@
   "name": "hackernews",
   "version": "0.1.0",
   "private": true,
+  "homepage" : "http://confidenceiskey.github.io/hackernews",
   "dependencies": {
     "axios": "^0.18.1",
     "classnames": "^2.2.6",
